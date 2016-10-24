@@ -1,12 +1,7 @@
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.routing.Routee;
-import akka.routing.Router;
 import akka.routing.SmallestMailboxPool;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Sander on 20-10-2016.
