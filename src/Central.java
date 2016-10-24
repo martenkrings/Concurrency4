@@ -19,6 +19,7 @@ public class Central extends UntypedActor {
             for (int i = 0; i < numberOfVerkoopAgents; i++) {
                 router.tell(messagesToGive[i], getSelf());
             }
+
         } else {
             unhandled(message);
         }
