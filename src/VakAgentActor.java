@@ -19,7 +19,7 @@ public class VakAgentActor extends UntypedActor {
         super.aroundPreStart();
 
         //make the seats
-        for (int i = 0; i < 100; i++){
+        for (int i = 0; i < 20; i++){
             seats.add(new Seat(i, Seat.FREE));
         }
     }
@@ -45,6 +45,7 @@ public class VakAgentActor extends UntypedActor {
     public void onReceive(Object message) throws Throwable {
         //try to reserve seats
         if (message instanceof ReserveMessage){
+            System.out.println(block + " vakAgent krijgt reservering");
             ReserveMessage copyMessage = (ReserveMessage) message;
 
             //find avaible seats
@@ -60,6 +61,7 @@ public class VakAgentActor extends UntypedActor {
 
             //if enough seats found send Arraylist of the seat numbers
             if (avaibleSeats.size() > copyMessage.getNumberOfChairs()){
+                System.out.println(block + " vakAgent heeft genoeg stoelen voor reservering, stuurt stoelnummers terug.");
                 ArrayList<Integer> seatNumbers = new ArrayList<>();
                 for (Seat seat:avaibleSeats){
 
@@ -71,6 +73,7 @@ public class VakAgentActor extends UntypedActor {
 
                 //else false
             } else {
+                System.out.println(block + " vakAgent heeft niet genoeg stoelen voor reservering, stuurt bericht terug");
                 getSender().tell(new ReserveResultMessage(null, false, block, copyMessage.getKoper()), getSelf());
             }
 
