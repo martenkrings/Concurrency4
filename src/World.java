@@ -15,9 +15,14 @@ public class World {
         ActorSystem actorSystem = ActorSystem.create();
 
         //makes a router that routes 5 VerkoopAgentActors
-        ActorRef central = actorSystem.actorOf(new SmallestMailboxPool(5).props(Props.create(VerkoopAgentActor.class)), "central");
+        ActorRef central = actorSystem.actorOf(new SmallestMailboxPool(1).props(Props.create(Central.class)), "central");
 
-        //recieve messages and route them
+        //make vakAgenten
+        for (int i = 1; i < 6; i++){
+            ActorRef vakAgent = actorSystem.actorOf(VakAgentActor.prop(i), "vakagent" + i);
+        }
+
+        //send messages
         central.tell("something", null);
 
     }

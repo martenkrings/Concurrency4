@@ -1,4 +1,5 @@
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.routing.SmallestMailboxPool;
@@ -11,9 +12,9 @@ public class Central extends UntypedActor {
 
     @Override
     public void onReceive(Object message) throws Throwable {
-        if (message instanceof RentMessage[]) {
-            RentMessage[] messagesToGive = (RentMessage[]) message;
-            ActorRef router = getContext().actorOf(new SmallestMailboxPool(5).props(Props.create(VerkoopAgentActor.class)), "router1");
+        if (message instanceof ReserveMessage[]) {
+            ReserveMessage[] messagesToGive = (ReserveMessage[]) message;
+            ActorRef router = getContext().actorOf(new SmallestMailboxPool(3).props(Props.create(VerkoopAgentActor.class)), "router");
 
             //give everybody work
             for (int i = 0; i < numberOfVerkoopAgents; i++) {

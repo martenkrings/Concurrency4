@@ -1,5 +1,7 @@
+import akka.actor.Props;
 import akka.actor.UntypedActor;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -7,6 +9,7 @@ import java.util.ArrayList;
  */
 public class VakAgentActor extends UntypedActor {
     private ArrayList<Seat> seats = new ArrayList<>();
+    private static int block;
 
     /**
      * When I start make all the seats
@@ -21,18 +24,81 @@ public class VakAgentActor extends UntypedActor {
         }
     }
 
+    public VakAgentActor(int block){
+        this.block = block;
+    }
+
+    public static Props prop(int block){
+        return Props.create(VakAgentActor.class, block);
+    }
+
     /**
      * Handles two kinds of requests
      * Reserve: looks if enoug seats are free, if they are reserves them(for a limited time) else send message back.
      * Buy: Change reserved seats into bought ones.
      *
      * If an reservation is left untouched to long cancels it.
-     * @param o
+     * @param message
      * @throws Throwable
      */
     @Override
-    public void onReceive(Object o) throws Throwable {
+    public void onReceive(Object message) throws Throwable {
+        //try to reserve seats
+        if (message instanceof ReserveMessage){
+            ReserveMessage copyMessage = (ReserveMessage) message;
 
+            //find avaible seats
+            ArrayList<Seat> avaibleSeats = new ArrayList<>();
+            for (Seat seat: seats){
+                if (seat.getStatus() == Seat.FREE){
+                    avaibleSeats.add(seat);
+                }
+                if (copyMessage.getNumberOfChairs() == avaibleSeats.size()){
+                    break;
+                }
+            }
+
+            //if enough seats found send Arraylist of the seat numbers
+            if (avaibleSeats.size() > copyMessage.getNumberOfChairs()){
+                ArrayList<Integer> seatNumbers = new ArrayList<>();
+                for (Seat seat:avaibleSeats){
+
+                    //reserve seats
+                    seatNumbers.add(seat.getSeatNumber());
+                    seat.setStatus(Seat.RESERVED);
+                }
+                getSender().tell(new ReserveResultMessage(seatNumbers, true, block, copyMessage.getKoper()), getSelf());
+
+                //else false
+            } else {
+                getSender().tell(new ReserveResultMessage(null, false, block, copyMessage.getKoper()), getSelf());
+            }
+
+            //change the seats to bought
+        } else if (message instanceof BuyMessage){
+            BuyMessage copyMessage = (BuyMessage) message;
+            for (Seat seat:seats){
+                for (int chairNumber : copyMessage.getChairNumbers())
+                if (seat.getSeatNumber() == chairNumber){
+                    seat.setStatus(Seat.TAKEN);
+                }
+            }
+            //todo send succes??
+
+            //change the seats to free
+        } else if(message instanceof CancelMessage){
+            CancelMessage copyMessage = (CancelMessage) message;
+            for (Seat seat:seats) {
+                for (int chairNumber : copyMessage.getChairNumbers())
+                    if (seat.getSeatNumber() == chairNumber) {
+                        seat.setStatus(Seat.FREE);
+                    }
+            }
+
+            //else throw it away
+        } else {
+            unhandled(message);
+        }
     }
 
     /**
