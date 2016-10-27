@@ -36,11 +36,16 @@ public class VerkoopAgentActor extends UntypedActor {
             vakAgentenRefs.get(copyMessage.getBlock() - 1).tell(message, getSelf());
 
         //if its a cancelMessage redirect it to a vakAgent
-        }else if(message instanceof CancelMessage){
+        }else if(message instanceof CancelMessage) {
             CancelMessage copyMessage = (CancelMessage) message;
             vakAgentenRefs.get(copyMessage.getBlock() - 1).tell(message, getSelf());
 
-            //else throw it away
+        //send confirmation of purchase to KoperActor
+        } else if(message instanceof ConfirmationMessage) {
+            ConfirmationMessage copyMessage = (ConfirmationMessage) message;
+            copyMessage.getKoper().tell(copyMessage, getSelf());
+
+        //else throw it away
         } else {
             unhandled(message);
         }

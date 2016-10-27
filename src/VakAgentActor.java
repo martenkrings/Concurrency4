@@ -9,7 +9,7 @@ import java.util.ArrayList;
  */
 public class VakAgentActor extends UntypedActor {
     private ArrayList<Seat> seats = new ArrayList<>();
-    private static int block;
+    private int block;
 
     /**
      * When I start make all the seats
@@ -45,7 +45,6 @@ public class VakAgentActor extends UntypedActor {
     public void onReceive(Object message) throws Throwable {
         //try to reserve seats
         if (message instanceof ReserveMessage){
-            System.out.println(block + " vakAgent krijgt reservering");
             ReserveMessage copyMessage = (ReserveMessage) message;
 
             //find avaible seats
@@ -60,8 +59,8 @@ public class VakAgentActor extends UntypedActor {
             }
 
             //if enough seats found send Arraylist of the seat numbers
-            if (avaibleSeats.size() > copyMessage.getNumberOfChairs()){
-                System.out.println(block + " vakAgent heeft genoeg stoelen voor reservering, stuurt stoelnummers terug.");
+            if (avaibleSeats.size() >= copyMessage.getNumberOfChairs()){
+                System.out.println(" vakAgent: " + block+ ", heeft genoeg stoelen voor reservering, stuurt stoelnummers terug.");
                 ArrayList<Integer> seatNumbers = new ArrayList<>();
                 for (Seat seat:avaibleSeats){
 
@@ -69,11 +68,12 @@ public class VakAgentActor extends UntypedActor {
                     seatNumbers.add(seat.getSeatNumber());
                     seat.setStatus(Seat.RESERVED);
                 }
+                //System.out.println("vakAgent: " + block  + "\n" + "|Free seats: " );
                 getSender().tell(new ReserveResultMessage(seatNumbers, true, block, copyMessage.getKoper()), getSelf());
 
                 //else false
             } else {
-                System.out.println(block + " vakAgent heeft niet genoeg stoelen voor reservering, stuurt bericht terug");
+                System.out.println("vakAgent: " + block + ", heeft niet genoeg stoelen voor reservering, stuurt bericht terug");
                 getSender().tell(new ReserveResultMessage(null, false, block, copyMessage.getKoper()), getSelf());
             }
 
@@ -86,7 +86,9 @@ public class VakAgentActor extends UntypedActor {
                     seat.setStatus(Seat.TAKEN);
                 }
             }
-            //todo send succes??
+            //send confirmation message
+            ConfirmationMessage confirmationMessage = new ConfirmationMessage(true, copyMessage.getKoper());
+            getSender().tell(confirmationMessage, getSelf());
 
             //change the seats to free
         } else if(message instanceof CancelMessage){

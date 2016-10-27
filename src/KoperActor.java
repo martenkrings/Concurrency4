@@ -21,23 +21,28 @@ public class KoperActor extends UntypedActor {
     @Override
     public void onReceive(Object message) throws Throwable {
         if (message instanceof ReserveResultMessage){
+            System.out.println("received reservation result");
             ReserveResultMessage copyMessage = (ReserveResultMessage) message;
 
             if (copyMessage.isSucces()) {
                 //kies of je de kaartje wil kopen, 5% kans van cancel
                 Random random = new Random();
                 if (random.nextInt(20) == 1) {
-                    getSender().tell(new BuyMessage(null, copyMessage.getBlock()), getSelf());
+                    getSender().tell(new CancelMessage(copyMessage.getSeatNumbers(), copyMessage.getBlock()), getSelf());
 
                 } else {
-                    getSender().tell(new BuyMessage(copyMessage.getSeatNumbers(), copyMessage.getBlock()), getSelf());
+                    getSender().tell(new BuyMessage(getSelf(), copyMessage.getSeatNumbers(), copyMessage.getBlock()), getSelf());
                 }
             } else {
-                //kill urself
+                System.out.println(getSelf() + "I didn't want them anyway, BAKA!");
+                getContext().stop(getSelf());
             }
 
-        } else if (message instanceof BuyMessage){
-            //todo maybah
+        } else if (message instanceof ConfirmationMessage){
+            System.out.println(getSelf() + "yay, I got tickets!!!");
+            getContext().stop(getSelf());
+        } else {
+            unhandled(message);
         }
     }
 
@@ -57,4 +62,6 @@ public class KoperActor extends UntypedActor {
         ReserveMessage reserveMessage = new ReserveMessage(random.nextInt(5) + 1, random.nextInt(4) + 1, getSelf());
         centralRef.tell(reserveMessage, getSelf());
     }
+
+
 }
