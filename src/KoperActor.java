@@ -21,7 +21,6 @@ public class KoperActor extends UntypedActor {
     @Override
     public void onReceive(Object message) throws Throwable {
         if (message instanceof ReserveResultMessage){
-            System.out.println("received reservation result");
             ReserveResultMessage copyMessage = (ReserveResultMessage) message;
 
             if (copyMessage.isSucces()) {
@@ -34,7 +33,7 @@ public class KoperActor extends UntypedActor {
                     getSender().tell(new BuyMessage(getSelf(), copyMessage.getSeatNumbers(), copyMessage.getBlock()), getSelf());
                 }
             } else {
-                System.out.println(getSelf() + "I didn't want them anyway, BAKA!");
+                System.out.println(getSelf() + "I could not get a ticket");
                 getContext().stop(getSelf());
             }
 

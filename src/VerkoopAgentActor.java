@@ -3,12 +3,14 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  *
  */
 public class VerkoopAgentActor extends UntypedActor {
     private ArrayList<ActorRef> vakAgentenRefs;
+    private static final int PROGRESS = 200; //in miliseconds
 
     public VerkoopAgentActor(ArrayList<ActorRef> actorRefs) {
         vakAgentenRefs = actorRefs;
@@ -20,6 +22,11 @@ public class VerkoopAgentActor extends UntypedActor {
 
     @Override
     public void onReceive(Object message) throws Throwable {
+        Random random = new Random();
+        //wait to simulate progressing erquest
+        Thread.sleep(random.nextInt(PROGRESS));
+
+
         //if its a reserveMessage redirect it to a vakAgent
         if (message instanceof ReserveMessage) {
             ReserveMessage copyMessage = (ReserveMessage) message;

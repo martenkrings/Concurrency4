@@ -22,18 +22,19 @@ public class World {
 
         //make vakAgenten
         for (int i = 1; i < 6; i++){
-            System.out.println("Vakagent" + i + " aangemaakt.");
             ActorRef vakAgent = actorSystem.actorOf(VakAgentActor.prop(i), "vakagent" + i);
             vakagenten.add(vakAgent);
         }
+        System.out.println("Vak agenten aangemaakt");
 
         //makes a router that routes 5 VerkoopAgentActors
         ActorRef central = actorSystem.actorOf(Central.props(vakagenten), "central");
+        System.out.println("Central aangemaakt");
 
         for (int i = 0; i < 50; i++){
-            System.out.println("Koper" + i + " aangemaakt.");
             ActorRef koper = actorSystem.actorOf(KoperActor.props(central), "koper" + i);
         }
+        System.out.println("Kopers aangemaakt");
 
         //wait long enough
         try {
@@ -41,5 +42,7 @@ public class World {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        System.exit(0);
     }
 }

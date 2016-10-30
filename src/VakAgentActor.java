@@ -3,11 +3,13 @@ import akka.actor.UntypedActor;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Actor that handles request to a section
  */
 public class VakAgentActor extends UntypedActor {
+    private static final int PROGRESS = 100; //In miliseconds
     private ArrayList<Seat> seats = new ArrayList<>();
     private int block;
 
@@ -43,6 +45,10 @@ public class VakAgentActor extends UntypedActor {
      */
     @Override
     public void onReceive(Object message) throws Throwable {
+        //wait to simulate progressing
+        Random random = new Random();
+        Thread.sleep(random.nextInt(PROGRESS));
+
         //try to reserve seats
         if (message instanceof ReserveMessage){
             ReserveMessage copyMessage = (ReserveMessage) message;
@@ -60,7 +66,7 @@ public class VakAgentActor extends UntypedActor {
 
             //if enough seats found send Arraylist of the seat numbers
             if (avaibleSeats.size() >= copyMessage.getNumberOfChairs()){
-                System.out.println(" vakAgent: " + block+ ", heeft genoeg stoelen voor reservering, stuurt stoelnummers terug.");
+                System.out.println("vakAgent: " + block+ ", heeft genoeg stoelen voor reservering. Koper:" + copyMessage.getKoper() + ", stuurt stoelnummers terug.");
                 ArrayList<Integer> seatNumbers = new ArrayList<>();
                 for (Seat seat:avaibleSeats){
 
@@ -73,7 +79,7 @@ public class VakAgentActor extends UntypedActor {
 
                 //else false
             } else {
-                System.out.println("vakAgent: " + block + ", heeft niet genoeg stoelen voor reservering, stuurt bericht terug");
+                System.out.println("vakAgent: " + block + ", heeft niet genoeg stoelen voor reservering. Koper: " + copyMessage.getKoper() + " stuurt bericht terug");
                 getSender().tell(new ReserveResultMessage(null, false, block, copyMessage.getKoper()), getSelf());
             }
 

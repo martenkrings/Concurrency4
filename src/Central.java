@@ -33,11 +33,12 @@ public class Central extends UntypedActor {
             //delegate work
             router.tell(copyMessage, getSelf());
 
-
             //else throw it away
         } else {
             unhandled(message);
         }
+
+
     }
 
     /**
@@ -47,7 +48,7 @@ public class Central extends UntypedActor {
      */
     @Override
     public void preStart() throws Exception {
-        router = system.actorOf(new SmallestMailboxPool(numberOfVerkoopAgents).props(Props.create(VerkoopAgentActor.class, vakAgenten)), "router");
+        this.router = system.actorOf(new SmallestMailboxPool(numberOfVerkoopAgents).props(Props.create(VerkoopAgentActor.class, vakAgenten)), "router");
     }
 
     Procedure<Object> scaleUp = new Procedure<Object>() {
